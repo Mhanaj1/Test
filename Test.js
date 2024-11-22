@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         XHamster User Search (iOS Fixed)
-// @version      1.0
+// @version      1.2
 // @description  Adds search functionality
 // @match        https://xhamster.com/videos/*
 // @grant        none
