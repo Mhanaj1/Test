@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         XHamster User Search (Basic)
+// @name         XHamster User Search (Click Fixed)
 // @version      1.0
 // @description  Adds search functionality
 // @match        https://xhamster.com/videos/*
@@ -9,7 +9,6 @@
 (function() {
     'use strict';
     
-    // Simple button creation - exactly as original
     const createSearchButton = (element) => {
         var searchButton = document.createElement('button');
         searchButton.className = 'search-button';
@@ -25,32 +24,25 @@
         
         searchButton.textContent = '🔍';
         
-        // Original mouse handling
+        // Original click handling that worked
         searchButton.onmousedown = function(event) {
-            if (event.button === 0) { // Left click
-                var url = 'https://duckduckgo.com/?q=' + encodeURIComponent(element.textContent.trim() + ' site:xhamster.com') + '&ia=web';
-                window.location.href = url;
-            } else if (event.button === 1) { // Middle click
-                var url = 'https://duckduckgo.com/?q=' + encodeURIComponent(element.textContent.trim() + ' site:xhamster.com') + '&ia=web';
-                window.open(url, '_blank');
-            }
+            var url = 'https://duckduckgo.com/?q=' + encodeURIComponent(element.textContent.trim() + ' site:xhamster.com') + '&ia=web';
+            window.location.href = url;
         };
 
         return searchButton;
     };
 
-    // Desktop implementation - exactly as original
-    const handleDesktop = () => {
-        var usernameElements = document.querySelectorAll('.video-page .body-8643e.label-5984a.label-96c3e');
-        usernameElements.forEach(function(element) {
+    const addSearchButtons = () => {
+        // Desktop version
+        var desktopElements = document.querySelectorAll('.video-page .body-8643e.label-5984a.label-96c3e');
+        desktopElements.forEach(function(element) {
             if (!element.nextElementSibling?.classList.contains('search-button')) {
                 element.parentNode.appendChild(createSearchButton(element));
             }
         });
-    };
 
-    // Mobile implementation
-    const handleMobile = () => {
+        // Mobile version
         var mobileElements = document.querySelectorAll('.subscribe-block__name');
         mobileElements.forEach(function(element) {
             if (!element.nextElementSibling?.classList.contains('search-button')) {
@@ -59,25 +51,15 @@
         });
     };
 
-    // Initialize
-    const init = () => {
-        handleDesktop();  // Run desktop version
-        handleMobile();   // Run mobile version
-    };
-
     // Run on page load
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', addSearchButtons);
     } else {
-        init();
+        addSearchButtons();
     }
 
-    // Watch for changes - reduced frequency
-    let timeout;
-    new MutationObserver(() => {
-        if (timeout) clearTimeout(timeout);
-        timeout = setTimeout(init, 500);
-    }).observe(document.body, {
+    // Watch for changes
+    new MutationObserver(addSearchButtons).observe(document.body, {
         childList: true,
         subtree: true
     });
