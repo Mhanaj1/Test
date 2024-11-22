@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         XHamster User Search (Multi-selector)
+// @name         XHamster User Search (Mobile Compatible)
 // @version      1.0
 // @description  Adds search functionality
 // @match        https://xhamster.com/videos/*
@@ -25,7 +25,7 @@
         
         searchButton.textContent = '🔍';
         
-        searchButton.onclick = function(event) {  // Changed to onclick for mobile
+        searchButton.onclick = function(event) {
             event.preventDefault();
             var url = 'https://duckduckgo.com/?q=' + encodeURIComponent(element.textContent.trim() + ' site:xhamster.com') + '&ia=web';
             window.location.href = url;
@@ -35,27 +35,21 @@
     };
 
     const init = () => {
-        // Try multiple potential selectors
-        [
-            '.video-page .body-8643e.label-5984a.label-96c3e',  // Desktop
-            '.author-block a',
-            '.author-name',
-            '.user-name',
-            'span[class*="label"]',
-            'div[class*="author"]'
-        ].forEach(selector => {
-            document.querySelectorAll(selector).forEach(addSearchButton);
-        });
+        // Desktop selector
+        const desktopElements = document.querySelectorAll('.video-page .body-8643e.label-5984a.label-96c3e');
+        desktopElements.forEach(addSearchButton);
+
+        // Mobile selector based on the structure
+        const mobileElements = document.querySelectorAll('.subscribe-block__name');
+        mobileElements.forEach(addSearchButton);
     };
 
-    // Run on page load
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
 
-    // Watch for changes
     new MutationObserver(init).observe(document.body, {
         childList: true,
         subtree: true
