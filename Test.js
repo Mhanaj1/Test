@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         XHamster User Search (iOS Fixed)
-// @version      1.2
+// @name         XHamster User Search (Fixed)
+// @version      1.0
 // @description  Adds search functionality
 // @match        https://xhamster.com/videos/*
 // @grant        none
@@ -9,38 +9,37 @@
 (function() {
     'use strict';
 
-    const addSearchLink = (usernameElement) => {
-        // Check if it's actually a retired user element
-        if (!usernameElement || 
-            !usernameElement.textContent.includes('Retired') ||
-            usernameElement.querySelector('.search-link')) {
-            return;
-        }
+    // Use exact same selector from original script
+    var usernameElements = document.querySelectorAll('.video-page .body-8643e.label-5984a.label-96c3e');
 
-        const username = usernameElement.textContent.trim().replace('Retired', '').trim();
+    usernameElements.forEach(function(element) {
+        // Create button (following original script)
+        var searchButton = document.createElement('button');
         
-        // Create search link
-        const link = document.createElement('a');
-        link.textContent = ' 🔍';
-        link.className = 'search-link';  // Mark as our link
-        link.href = `https://duckduckgo.com/?q=${encodeURIComponent(username + ' site:xhamster.com')}`;
-        link.target = '_blank';
+        // Use same styling from original
+        searchButton.style.background = 'green';
+        searchButton.style.color = 'white';
+        searchButton.style.padding = '5px 10px';
+        searchButton.style.border = 'none';
+        searchButton.style.borderRadius = '5px';
+        searchButton.style.cursor = 'pointer';
+        searchButton.style.marginLeft = '5px';
         
-        usernameElement.appendChild(link);
-    };
+        // Simple text instead of HTML
+        searchButton.textContent = '🔍';
+        
+        // Use same click handling from original
+        searchButton.onmousedown = function(event) {
+            if (event.button === 0) { // Left click
+                var url = 'https://duckduckgo.com/?q=' + encodeURIComponent(element.textContent.trim() + ' site:xhamster.com') + '&ia=web';
+                window.location.href = url;
+            } else if (event.button === 1) { // Middle click
+                var url = 'https://duckduckgo.com/?q=' + encodeURIComponent(element.textContent.trim() + ' site:xhamster.com') + '&ia=web';
+                window.open(url, '_blank');
+            }
+        };
 
-    // Initialize
-    const init = () => {
-        // Look specifically for retired user elements
-        const userElements = document.querySelectorAll('div.author-name span');
-        userElements.forEach(addSearchLink);
-    };
-
-    // Start when ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+        // Same append method from original
+        element.parentNode.appendChild(searchButton);
+    });
 })();
-```
