@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         XHamster Retired User Search (iOS Verified)
+// @name         XHamster User Search (iOS Fixed)
 // @version      1.0
-// @description  Adds search functionality for retired users
+// @description  Adds search functionality
 // @match        https://xhamster.com/videos/*
 // @grant        none
 // ==/UserScript==
@@ -9,38 +9,31 @@
 (function() {
     'use strict';
 
-    // Simple function to search for a username
-    const searchUser = (username) => {
-        const searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(username + ' site:xhamster.com')}`;
-        window.location.href = searchUrl;
-    };
-
-    // Simple function to check and add search link
     const addSearchLink = (usernameElement) => {
-        if (!usernameElement || usernameElement.querySelector('.search-link')) {
+        // Check if it's actually a retired user element
+        if (!usernameElement || 
+            !usernameElement.textContent.includes('Retired') ||
+            usernameElement.querySelector('.search-link')) {
             return;
         }
 
-        const username = usernameElement.textContent.trim();
+        const username = usernameElement.textContent.trim().replace('Retired', '').trim();
         
-        // Create a simple link (no styles)
+        // Create search link
         const link = document.createElement('a');
-        link.textContent = ' 🔍';  // Just an emoji, no styles
-        link.href = '#';
+        link.textContent = ' 🔍';
+        link.className = 'search-link';  // Mark as our link
+        link.href = `https://duckduckgo.com/?q=${encodeURIComponent(username + ' site:xhamster.com')}`;
+        link.target = '_blank';
         
-        // Simple click handler
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            searchUser(username);
-        });
-
         usernameElement.appendChild(link);
     };
 
-    // Simple initialization
+    // Initialize
     const init = () => {
-        const usernames = document.querySelectorAll('.video-page .body-8643e.label-5984a.label-96c3e');
-        usernames.forEach(addSearchLink);
+        // Look specifically for retired user elements
+        const userElements = document.querySelectorAll('div.author-name span');
+        userElements.forEach(addSearchLink);
     };
 
     // Start when ready
@@ -50,3 +43,4 @@
         init();
     }
 })();
+```
