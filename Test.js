@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         XHamster User Search (Mobile Compatible)
+// @name         XHamster User Search (Mobile+Desktop Fixed)
 // @version      1.0
 // @description  Adds search functionality
 // @match        https://xhamster.com/videos/*
@@ -9,8 +9,11 @@
 (function() {
     'use strict';
 
-    const addSearchButton = (element) => {
+    const addSearchButton = (element, isRetired) => {
         if (!element || element.querySelector('.search-button')) return;
+        
+        // Only add button if retired
+        if (!isRetired) return;
         
         var searchButton = document.createElement('button');
         
@@ -35,21 +38,39 @@
     };
 
     const init = () => {
-        // Desktop selector
-        const desktopElements = document.querySelectorAll('.video-page .body-8643e.label-5984a.label-96c3e');
-        desktopElements.forEach(addSearchButton);
+        // Try to find the videoModel data
+        const scriptTags = document.querySelectorAll('script');
+        let isRetired = false;
 
-        // Mobile selector based on the structure
-        const mobileElements = document.querySelectorAll('.subscribe-block__name');
-        mobileElements.forEach(addSearchButton);
+        // Look for retirement status in script tags
+        scriptTags.forEach(script => {
+            try {
+                if (script.textContent.includes('"modelName":"shortUserModel"')) {
+                    const data = JSON.parse(script.textContent);
+                    if (data.author && data.author.retired) {
+                        isRetired = true;
+                    }
+                }
+            } catch (e) {}
+        });
+
+        // Desktop version
+        document.querySelectorAll('.video-page .body-8643e.label-5984a.label-96c3e')
+            .forEach(el => addSearchButton(el, isRetired));
+
+        // Mobile version
+        document.querySelectorAll('.subscribe-block__name')
+            .forEach(el => addSearchButton(el, isRetired));
     };
 
+    // Run on page load
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
 
+    // Watch for changes
     new MutationObserver(init).observe(document.body, {
         childList: true,
         subtree: true
